@@ -1,0 +1,85 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_DEFAULT_REGION = 'us-east-1'
+        TERRAFORM_EXECUTABLE = '/usr/bin/terraform'
+        CREDENTIALS_ID = 'AWS_ACCESS_KEY_ID'
+        SECRET_CREDENTIALS_ID = 'AWS_SECRET_ACCESS_KEY'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                script {
+                    try {
+                        withCredentials([string(credentialsId: env.CREDENTIALS_ID, variable: 'AWS_ACCESS_KEY_ID'),
+                                         string(credentialsId: env.SECRET_CREDENTIALS_ID, variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                            sh "${env.TERRAFORM_EXECUTABLE} init"
+                        }
+                    } catch (Exception e) {
+                        echo "Error occurred during Terraform initialization: ${e}"
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                script {
+                    try {
+                        withCredentials([string(credentialsId: env.CREDENTIALS_ID, variable: 'AWS_ACCESS_KEY_ID'),
+                                         string(credentialsId: env.SECRET_CREDENTIALS_ID, variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                            sh "${env.TERRAFORM_EXECUTABLE} plan"
+                        }
+                    } catch (Exception e) {
+                        echo "Error occurred during Terraform planning: ${e}"
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    try {
+                        input message: '¿Quieres aplicar los cambios?', ok: 'Aplicar'
+                        withCredentials([string(credentialsId: env.CREDENTIALS_ID, variable: 'AWS_ACCESS_KEY_ID'),
+                                         string(credentialsId: env.SECRET_CREDENTIALS_ID, variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                            sh "${env.TERRAFORM_EXECUTABLE} apply --auto-approve"
+                        }
+                    } catch (Exception e) {
+                        echo "Error occurred during Terraform apply: ${e}"
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
+            }
+        }
+
+        stage('Destroy Terraform Resources') {
+            steps {
+                script {
+                    try {
+                        sleep time: 60, unit: 'SECONDS' // Espera 1 minuto antes de destruir los recursos
+                        input message: '¿Quieres destruir los recursos de Terraform?', ok: 'Destruir'
+                        withCredentials([string(credentialsId: env.CREDENTIALS_ID, variable: 'AWS_ACCESS_KEY_ID'),
+                                         string(credentialsId: env.SECRET_CREDENTIALS_ID, variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                            sh "${env.TERRAFORM_EXECUTABLE} destroy --auto-approve"
+                        }
+                    } catch (Exception e) {
+                        echo "Error occurred during Terraform destroy: ${e}"
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
+            }
+        }
+    }
+}
