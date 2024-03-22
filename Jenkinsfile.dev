@@ -51,7 +51,6 @@ pipeline {
             steps {
                 script {
                     try {
-                        input message: '¿Quieres aplicar los cambios?', ok: 'Aplicar'
                         withCredentials([string(credentialsId: env.CREDENTIALS_ID, variable: 'AWS_ACCESS_KEY_ID'),
                                          string(credentialsId: env.SECRET_CREDENTIALS_ID, variable: 'AWS_SECRET_ACCESS_KEY')]) {
                             sh "${env.TERRAFORM_EXECUTABLE} apply --auto-approve -no-color"
@@ -68,7 +67,6 @@ pipeline {
             steps {
                 script {
                     try {
-                        sleep time: 60, unit: 'SECONDS' // Espera 1 minuto antes de destruir los recursos
                         input message: '¿Quieres destruir los recursos de Terraform?', ok: 'Destruir'
                         withCredentials([string(credentialsId: env.CREDENTIALS_ID, variable: 'AWS_ACCESS_KEY_ID'),
                                          string(credentialsId: env.SECRET_CREDENTIALS_ID, variable: 'AWS_SECRET_ACCESS_KEY')]) {
