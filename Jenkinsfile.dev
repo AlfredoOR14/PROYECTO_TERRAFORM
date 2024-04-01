@@ -4,8 +4,8 @@ pipeline {
     environment {
         AWS_DEFAULT_REGION = 'us-east-1'
         TERRAFORM_EXECUTABLE = '/usr/bin/terraform'
-        CREDENTIALS_ID = 'AWS_ACCESS_KEY_ID'
-        SECRET_CREDENTIALS_ID = 'AWS_SECRET_ACCESS_KEY'
+        CREDENTIALS_ID = 'AWS_ACCESS_KEY_ID_1'
+        SECRET_CREDENTIALS_ID = 'AWS_SECRET_ACCESS_KEY_1'
     }
 
     stages {
