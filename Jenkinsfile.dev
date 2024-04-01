@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_DEFAULT_REGION = 'us-east-1'
         TERRAFORM_EXECUTABLE = '/usr/bin/terraform'
-        CREDENTIALS_ID = 'AWS_ACCESS_KEY_ID'
+        CREDENTIALS_ID = 'AWS_ACCESS_KEY_ID_1'
         SECRET_CREDENTIALS_ID = 'AWS_SECRET_ACCESS_KEY_1'
     }
 
@@ -19,8 +19,8 @@ pipeline {
             steps {
                 script {
                     try {
-                        withCredentials([string(credentialsId: env.CREDENTIALS_ID, variable: 'AWS_ACCESS_KEY_ID'),
-                                         string(credentialsId: env.SECRET_CREDENTIALS_ID, variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        withCredentials([string(credentialsId: env.CREDENTIALS_ID, variable: 'AWS_ACCESS_KEY_ID_1'),
+                                         string(credentialsId: env.SECRET_CREDENTIALS_ID, variable: 'AWS_SECRET_ACCESS_KEY_1')]) {
                             sh "${env.TERRAFORM_EXECUTABLE} init -no-color"
                         }
                     } catch (Exception e) {
